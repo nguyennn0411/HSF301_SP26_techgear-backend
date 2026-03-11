@@ -1,33 +1,49 @@
 package com.techgear.store.controller;
 
-import com.techgear.store.entity.Cart;
+import com.techgear.store.dto.AddToCartRequest;
+import com.techgear.store.dto.CartResponse;
+import com.techgear.store.dto.UpdateCartItemRequest;
 import com.techgear.store.service.CartService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("/api/cart")
 public class CartController {
+
     private final CartService cartService;
-    public CartController(CartService cartService) { this.cartService = cartService; }
 
-    @GetMapping("/{userId}")
-    public Cart getCart(@PathVariable Long userId) {
-        return cartService.getOrCreateCart(userId);
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
     }
 
-    @PostMapping("/{userId}/items/{productId}")
-    public Cart add(@PathVariable Long userId, @PathVariable Long productId,
-                    @RequestParam(defaultValue = "1") int qty) {
-        return cartService.addItem(userId, productId, qty);
+    @GetMapping
+    public ResponseEntity<CartResponse> getMyCart(Authentication authentication) {
+        return ResponseEntity.ok(cartService.getMyCart(authentication));
     }
 
-    @DeleteMapping("/{userId}/items/{productId}")
-    public void remove(@PathVariable Long userId, @PathVariable Long productId) {
-        cartService.removeItem(userId, productId);
+    @PostMapping("/items")
+    public ResponseEntity<CartResponse> addToCart(@RequestBody AddToCartRequest request,
+                                                  Authentication authentication) {
+        return ResponseEntity.ok(cartService.addToCart(request, authentication));
     }
 
-    @DeleteMapping("/{userId}/clear")
-    public void clear(@PathVariable Long userId) {
-        cartService.clear(userId);
+    @PutMapping("/items/{cartItemId}")
+    public ResponseEntity<CartResponse> updateCartItem(@PathVariable Long cartItemId,
+                                                       @RequestBody UpdateCartItemRequest request,
+                                                       Authentication authentication) {
+        return ResponseEntity.ok(cartService.updateCartItem(cartItemId, request, authentication));
+    }
+
+    @DeleteMapping("/items/{cartItemId}")
+    public ResponseEntity<CartResponse> removeCartItem(@PathVariable Long cartItemId,
+                                                       Authentication authentication) {
+        return ResponseEntity.ok(cartService.removeCartItem(cartItemId, authentication));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> clearMyCart(Authentication authentication) {
+        return ResponseEntity.ok(cartService.clearMyCart(authentication));
     }
 }

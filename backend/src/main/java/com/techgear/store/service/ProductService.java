@@ -18,45 +18,70 @@ public class ProductService {
     }
 
     public List<Product> getAll(ProductFilterDTO f) {
-        Specification<Product> spec = Specification.where((Specification<Product>)null);
+        Specification<Product> spec = null;
 
         if (f != null) {
             if (f.getCategoryId() != null) {
-                spec = spec.and((root, q, cb) -> cb.equal(root.get("category").get("id"), f.getCategoryId()));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.equal(root.get("category").get("id"), f.getCategoryId());
+                spec = (spec == null) ? s : spec.and(s);
             }
+
             if (f.getBrandId() != null) {
-                spec = spec.and((root, q, cb) -> cb.equal(root.get("brand").get("id"), f.getBrandId()));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.equal(root.get("brand").get("id"), f.getBrandId());
+                spec = (spec == null) ? s : spec.and(s);
             }
+
             if (f.getMinPrice() != null) {
-                spec = spec.and((root, q, cb) -> cb.greaterThanOrEqualTo(root.get("price"), f.getMinPrice()));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.greaterThanOrEqualTo(root.get("price"), f.getMinPrice());
+                spec = (spec == null) ? s : spec.and(s);
             }
+
             if (f.getMaxPrice() != null) {
-                spec = spec.and((root, q, cb) -> cb.lessThanOrEqualTo(root.get("price"), f.getMaxPrice()));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.lessThanOrEqualTo(root.get("price"), f.getMaxPrice());
+                spec = (spec == null) ? s : spec.and(s);
             }
+
             if (f.getKeyword() != null && !f.getKeyword().trim().isEmpty()) {
                 String kw = "%" + f.getKeyword().trim().toLowerCase() + "%";
-                spec = spec.and((root, q, cb) -> cb.like(cb.lower(root.get("name")), kw));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.like(cb.lower(root.get("name")), kw);
+                spec = (spec == null) ? s : spec.and(s);
             }
+
             if (Boolean.TRUE.equals(f.getActiveOnly())) {
-                spec = spec.and((root, q, cb) -> cb.isTrue(root.get("isActive")));
+                Specification<Product> s =
+                        (root, q, cb) -> cb.isTrue(root.get("isActive"));
+                spec = (spec == null) ? s : spec.and(s);
             }
         }
 
-        return productRepository.findAll(spec);
+        return (spec == null) ? productRepository.findAll() : productRepository.findAll(spec);
     }
 
     public Product getById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found"));
+        return productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
     }
 
     public Product create(Product p) {
-        if (p.getPrice() == null || p.getPrice() <= 0) throw new IllegalArgumentException("Price must be > 0");
-        if (p.getStock() == null || p.getStock() < 0) throw new IllegalArgumentException("Stock must be >= 0");
+        if (p.getPrice() == null || p.getPrice() <= 0) {
+            throw new IllegalArgumentException("Price must be > 0");
+        }
+
+        if (p.getStock() == null || p.getStock() < 0) {
+            throw new IllegalArgumentException("Stock must be >= 0");
+        }
+
         return productRepository.save(p);
     }
 
     public Product update(Long id, Product payload) {
         Product p = getById(id);
+
         p.setName(payload.getName());
         p.setDescription(payload.getDescription());
         p.setPrice(payload.getPrice());
@@ -67,6 +92,7 @@ public class ProductService {
         p.setIsActive(payload.getIsActive());
         p.setCategory(payload.getCategory());
         p.setBrand(payload.getBrand());
+
         return productRepository.save(p);
     }
 

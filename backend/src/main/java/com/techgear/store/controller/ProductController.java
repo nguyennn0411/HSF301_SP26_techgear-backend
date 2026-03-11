@@ -9,32 +9,55 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
-    private final ProductService productService;
-    public ProductController(ProductService productService) { this.productService = productService; }
 
-    @PostMapping("/filter")
-    public List<Product> filter(@RequestBody(required = false) ProductFilterDTO filter) {
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    // Home page: lấy danh sách sản phẩm
+    @GetMapping
+    public List<Product> getAllProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean activeOnly
+    ) {
+        ProductFilterDTO filter = new ProductFilterDTO();
+        filter.setCategoryId(categoryId);
+        filter.setBrandId(brandId);
+        filter.setMinPrice(minPrice);
+        filter.setMaxPrice(maxPrice);
+        filter.setKeyword(keyword);
+        filter.setActiveOnly(activeOnly);
+
         return productService.getAll(filter);
     }
 
+    // Product detail page: lấy chi tiết theo id
     @GetMapping("/{id}")
-    public Product get(@PathVariable Long id) {
+    public Product getProductById(@PathVariable Long id) {
         return productService.getById(id);
     }
 
     @PostMapping
-    public Product create(@RequestBody Product p) {
-        return productService.create(p);
+    public Product createProduct(@RequestBody Product product) {
+        return productService.create(product);
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody Product p) {
-        return productService.update(id, p);
+    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return productService.update(id, product);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id) {
         productService.delete(id);
+        return "Delete product successfully";
     }
 }
