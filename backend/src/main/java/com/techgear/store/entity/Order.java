@@ -28,7 +28,23 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> details = new ArrayList<>();
+    @Column(name = "payment_method", length = 30)
+    private String paymentMethod; // COD | ONLINE
 
+    @Column(name = "payment_status", length = 30)
+    private String paymentStatus = "UNPAID"; // UNPAID | PENDING | PAID | FAILED
+
+    @Column(name = "paid_at")
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public LocalDateTime getPaidAt() { return paidAt; }
+    public void setPaidAt(LocalDateTime paidAt) { this.paidAt = paidAt; }
+    private LocalDateTime paidAt;
     public Long getId() { return id; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

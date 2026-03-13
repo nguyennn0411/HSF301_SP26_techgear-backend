@@ -40,7 +40,14 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request, Authentication authentication) {
         String email = authentication.getName();
+        String paymentMethod = (request != null && request.getPaymentMethod() != null
+                && !request.getPaymentMethod().trim().isEmpty())
+                ? request.getPaymentMethod().trim().toUpperCase()
+                : "COD";
 
+        if (!paymentMethod.equals("COD") && !paymentMethod.equals("ONLINE")) {
+            throw new IllegalArgumentException("Payment method must be COD or ONLINE");
+        }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -124,7 +131,15 @@ public class OrderService {
         order.setStatus("PENDING");
         order.setCoupon(coupon);
         order.setTotal(finalTotal);
+        order.setPaymentMethod(paymentMethod);
 
+        if ("COD".equals(paymentMethod)) {
+            order.setPaymentStatus("UNPAID");
+            order.setStatus("PENDING");
+        } else {
+            order.setPaymentStatus("PENDING");
+            order.setStatus("PENDING");
+        }
         Order savedOrder = orderRepository.save(order);
 
         for (CartItem cartItem : cartItems) {
@@ -150,6 +165,8 @@ public class OrderService {
                 coupon != null ? coupon.getCode() : null,
                 discountPercent,
                 savedOrder.getCreatedAt(),
+                savedOrder.getPaymentMethod(),
+                savedOrder.getPaymentStatus(),
                 itemResponses
         );
     }
@@ -185,6 +202,8 @@ public class OrderService {
                     order.getCoupon() != null ? order.getCoupon().getCode() : null,
                     order.getCoupon() != null ? order.getCoupon().getDiscountPercent() : null,
                     order.getCreatedAt(),
+                    order.getPaymentMethod(),
+                    order.getPaymentStatus(),
                     items
             ));
         }
@@ -226,6 +245,8 @@ public class OrderService {
                 order.getCoupon() != null ? order.getCoupon().getCode() : null,
                 order.getCoupon() != null ? order.getCoupon().getDiscountPercent() : null,
                 order.getCreatedAt(),
+                order.getPaymentMethod(),
+                order.getPaymentStatus(),
                 items
         );
     }

@@ -10,19 +10,30 @@ public class OrderResponse {
     private String couponCode;
     private Integer discountPercent;
     private LocalDateTime createdAt;
+    private String paymentMethod;
+    private String paymentStatus;
     private List<OrderItemResponse> items;
 
     public OrderResponse() {
     }
 
-    public OrderResponse(Long orderId, String status, Double total, String couponCode,
-                         Integer discountPercent, LocalDateTime createdAt, List<OrderItemResponse> items) {
+    public OrderResponse(Long orderId,
+                         String status,
+                         Double total,
+                         String couponCode,
+                         Integer discountPercent,
+                         LocalDateTime createdAt,
+                         String paymentMethod,
+                         String paymentStatus,
+                         List<OrderItemResponse> items) {
         this.orderId = orderId;
         this.status = status;
         this.total = total;
         this.couponCode = couponCode;
         this.discountPercent = discountPercent;
         this.createdAt = createdAt;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
         this.items = items;
     }
 
@@ -72,6 +83,22 @@ public class OrderResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public List<OrderItemResponse> getItems() {

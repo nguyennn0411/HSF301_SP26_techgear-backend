@@ -57,6 +57,7 @@ public class SecurityConfig {
                         // Public read products
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/products/filter").permitAll()
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("STAFF", "OWNER")
 
                         // Others must login
                         .anyRequest().authenticated()
